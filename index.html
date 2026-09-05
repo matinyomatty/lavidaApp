@@ -116,7 +116,10 @@
                             <span id="backdate-indicator" class="hidden text-[10px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200">⚠️ Backdating Session</span>
                         </div>
                     </div>
-                    <span id="session-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">SESSION OPEN</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openUpdateRequestModal()" class="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 font-bold rounded-xl text-xs hover:bg-blue-100 transition">📩 Request Balance Adjustment</button>
+                        <span id="session-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">SESSION OPEN</span>
+                    </div>
                 </div>
 
                 <div id="agent-form-container" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -190,7 +193,7 @@
                             <h3 class="font-bold text-slate-900 border-b pb-2 text-sm">4. Final Lock & Review</h3>
                             <div class="space-y-2 bg-slate-50 p-4 rounded-xl border text-xs">
                                 <div class="flex justify-between"><span>Total Transaction Volume:</span><span class="font-bold text-slate-800">TZS <span id="rev-volume">0</span></span></div>
-                                <div class="flex justify-between"><span class="text-emerald-700 font-semibold">Total Commission:</span><span class="font-bold text-emerald-700">TZS <span id="rev-comm">0</span></span></div>
+                                <div class="flex justify-between"><span class="text-emerald-700 font-semibold">Total Commission / Fees:</span><span class="font-bold text-emerald-700">TZS <span id="rev-comm">0</span></span></div>
                                 <div class="flex justify-between"><span class="text-rose-700 font-semibold">Total Expenses:</span><span class="font-bold text-rose-700">TZS <span id="rev-exp">0</span></span></div>
                             </div>
                             <button onclick="submitClosing()" class="w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition">
@@ -242,6 +245,19 @@
                     </div>
                 </div>
 
+                <!-- UPDATE REQUESTS SECTION FOR OWNER -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Agent Balance Update Requests</h3>
+                            <p class="text-[11px] text-slate-500">Pending requests sent by agents for float or opening balance corrections.</p>
+                        </div>
+                    </div>
+                    <div id="update-requests-list" class="space-y-2">
+                        <p class="text-xs text-slate-400 italic">No pending update requests.</p>
+                    </div>
+                </div>
+
                 <!-- ADMIN RECENT DAILY CLOSURES LOG TABLE -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b pb-2">
@@ -258,7 +274,7 @@
                                     <th class="p-3">Closure Date</th>
                                     <th class="p-3">Submitted By</th>
                                     <th class="p-3 text-right">Volume</th>
-                                    <th class="p-3 text-right">Commission</th>
+                                    <th class="p-3 text-right">Commission / Fees</th>
                                     <th class="p-3 text-right">Expenses</th>
                                     <th class="p-3 text-right">Cash Variance</th>
                                 </tr>
@@ -301,6 +317,33 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- MODAL: AGENT UPDATE REQUEST -->
+    <div id="modal-update-request" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-4 shadow-2xl">
+            <h3 class="font-bold text-slate-900 text-base">Request Balance Adjustment</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase">Target Balance</label>
+                    <select id="req-target" class="w-full p-3 border rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500">
+                        <option value="CASH">Opening Cash Drawer</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase">Requested New Balance (TZS)</label>
+                    <input type="number" id="req-amount" placeholder="0" class="w-full p-3 border rounded-xl text-sm font-bold text-slate-800 mt-1 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase">Reason / Note</label>
+                    <input type="text" id="req-note" placeholder="e.g. M-Pesa float adjustment required" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 border-t pt-3">
+                <button onclick="closeUpdateRequestModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="submitUpdateRequest()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-blue-700">Send Request</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: CAPITAL INJECTION -->
@@ -444,6 +487,7 @@
         let expenses = [];
         let capitalLedger = [];
         let historicalLogs = [];
+        let updateRequests = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             const todayStr = new Date().toISOString().split('T')[0];
@@ -499,6 +543,11 @@
                 renderAdminClosureTable();
                 calculateAll();
                 checkAutoMonthlyExport();
+            });
+
+            db.collection("updateRequests").onSnapshot(snapshot => {
+                updateRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUpdateRequests();
             });
         }
 
@@ -584,7 +633,7 @@
                             <input type="number" value="${n.closingFloat || 0}" onchange="updateNetworkVal('${n.id}', 'closingFloat', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 font-bold">Commission (TZS)</label>
+                            <label class="text-[10px] text-slate-500 font-bold">${n.code === 'LIPA' ? 'Direct Fees (TZS)' : 'Commission (TZS)'}</label>
                             <input type="number" value="${n.commission || 0}" onchange="updateNetworkVal('${n.id}', 'commission', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
@@ -652,6 +701,77 @@
                     <td class="p-3 text-right font-bold ${s.variance < 0 ? 'text-rose-600' : 'text-slate-800'}">TZS ${Number(s.variance || 0).toLocaleString()}</td>
                 </tr>
             `).join('');
+        }
+
+        function renderUpdateRequests() {
+            const container = document.getElementById('update-requests-list');
+            if(!container) return;
+
+            if(updateRequests.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No pending update requests.</p>`;
+                return;
+            }
+
+            container.innerHTML = updateRequests.map(r => `
+                <div class="p-3 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
+                    <div>
+                        <span class="font-bold text-slate-800">${r.requestedBy}</span> requested adjustment for <span class="font-bold text-blue-600">${r.target}</span>: 
+                        <span class="font-black text-slate-900">TZS ${Number(r.amount || 0).toLocaleString()}</span>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Note: ${r.note || 'No reason provided'}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="approveUpdateRequest('${r.id}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px] hover:bg-emerald-700">Approve</button>
+                        <button onclick="rejectUpdateRequest('${r.id}')" class="px-3 py-1 bg-rose-600 text-white font-bold rounded-lg text-[10px] hover:bg-rose-700">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openUpdateRequestModal() {
+            const sel = document.getElementById('req-target');
+            if(sel) {
+                sel.innerHTML = `<option value="CASH">Opening Cash Drawer</option>` + networks.map(n => `<option value="${n.code}">${n.name} Float</option>`).join('');
+            }
+            document.getElementById('modal-update-request').classList.remove('hidden');
+        }
+        function closeUpdateRequestModal() { document.getElementById('modal-update-request').classList.add('hidden'); }
+
+        async function submitUpdateRequest() {
+            const target = document.getElementById('req-target').value;
+            const amt = Number(document.getElementById('req-amount').value);
+            const note = document.getElementById('req-note').value.trim();
+
+            if(!amt) return;
+
+            await db.collection("updateRequests").add({
+                target: target,
+                amount: amt,
+                note: note,
+                requestedBy: currentUser ? currentUser.name : 'Agent',
+                createdAt: new Date()
+            });
+
+            closeUpdateRequestModal();
+            alert("Update request submitted to Owner for approval!");
+        }
+
+        async function approveUpdateRequest(reqId) {
+            const req = updateRequests.find(r => r.id === reqId);
+            if(!req) return;
+
+            if(req.target === 'CASH') {
+                document.getElementById('input-opening-cash').value = req.amount;
+            } else {
+                await db.collection("networks").doc(req.target).update({ closingFloat: req.amount });
+            }
+
+            await db.collection("updateRequests").doc(reqId).delete();
+            calculateAll();
+            alert("Update request approved and applied!");
+        }
+
+        async function rejectUpdateRequest(reqId) {
+            await db.collection("updateRequests").doc(reqId).delete();
         }
 
         function renderExpenses() {
@@ -725,7 +845,7 @@
             closeEditUserModal();
         }
 
-        // CALCULATE BALANCES WITH DYNAMIC CAPITAL LEDGER
+        // ACCURATE WAKALA ACCOUNTING CALCULATIONS
         function calculateAll() {
             const openingCash = Number(document.getElementById('input-opening-cash').value) || 0;
             const actualCash = Number(document.getElementById('input-actual-cash').value) || 0;
@@ -744,7 +864,10 @@
             const expectedCash = openingCash + todayDeposits - todayWithdrawals - todayExpenses;
             const shiftVariance = actualCash - expectedCash;
             const moneyPosition = actualCash + totalFloat;
-            const netProfit = todayCommission - todayExpenses;
+
+            // REVISED ACCURATE CUMULATIVE NET PROFIT LOGIC:
+            // Net Profit = (Total Money Assets - Injected Capital Baseline) - Active Shift Variance
+            const netProfit = (moneyPosition - totalPersistentCapital) - shiftVariance;
 
             document.getElementById('lbl-expected-cash').innerText = expectedCash.toLocaleString();
             document.getElementById('lbl-cash-variance').innerText = shiftVariance.toLocaleString();
@@ -787,7 +910,20 @@
             if(!amt) return;
 
             await db.collection("capitalLedger").add({ target, amount: amt, note, createdAt: new Date() });
+
+            if (target === 'CASH') {
+                const currentOpening = Number(document.getElementById('input-opening-cash').value) || 0;
+                document.getElementById('input-opening-cash').value = currentOpening + amt;
+            } else {
+                const netDoc = networks.find(n => n.code === target);
+                if (netDoc) {
+                    const newFloat = Number(netDoc.closingFloat || 0) + amt;
+                    await db.collection("networks").doc(netDoc.id).update({ closingFloat: newFloat });
+                }
+            }
+
             closeCapitalModal();
+            calculateAll();
         }
 
         function openNetworkModal() { document.getElementById('modal-network').classList.remove('hidden'); }
@@ -941,12 +1077,11 @@
                 dailyReport += `👤 *Submitted By:* ${currentUser.name} (${currentUser.branch || 'Agent'})\n\n`;
                 dailyReport += `📈 *SUMMARY STATISTICS*\n`;
                 dailyReport += `• Total Volume: TZS ${totalVolume.toLocaleString()}\n`;
-                dailyReport += `• Gross Commission: TZS ${totalCommission.toLocaleString()}\n`;
+                dailyReport += `• Gross Commission / Fees: TZS ${totalCommission.toLocaleString()}\n`;
                 dailyReport += `• Total Expenses: TZS ${totalExpenses.toLocaleString()}\n`;
                 dailyReport += `• Cash Variance: TZS ${variance.toLocaleString()}\n\n`;
                 dailyReport += `✅ *Status:* Daily session locked and saved to cloud database.`;
 
-                // Note: Standard daily report sent using CallMeBot endpoint (requires apikey if setup for user)
                 const userApiKey = currentUser.apikey || "8390915";
                 const dailyApiUrl = `https://api.callmebot.com/whatsapp.php?phone=${targetPhone}&text=${encodeURIComponent(dailyReport)}&apikey=${userApiKey}`;
                 try {
@@ -983,7 +1118,7 @@
 
             doc.autoTable({
                 startY: 35,
-                head: [['Closure Date', 'Submitted By', 'Volume', 'Commission', 'Expenses', 'Variance']],
+                head: [['Closure Date', 'Submitted By', 'Volume', 'Commission / Fees', 'Expenses', 'Variance']],
                 body: tableRows,
                 theme: 'striped',
                 headStyles: { fillColor: [16, 185, 129] }
