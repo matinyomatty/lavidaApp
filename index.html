@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -547,11 +548,14 @@
                 networks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (networks.length === 0) {
                     const defaults = [
+                        { code: 'DRAWER', name: 'Drawer Physical Cash', minFloat: 100000, deposits: 0, withdrawals: 0, closingFloat: 0, commission: 0 },
                         { code: 'MPESA', name: 'M-Pesa', minFloat: 300000, deposits: 0, withdrawals: 0, closingFloat: 0, commission: 0 },
                         { code: 'AIRTEL', name: 'Airtel Money', minFloat: 250000, deposits: 0, withdrawals: 0, closingFloat: 0, commission: 0 },
                         { code: 'LIPA', name: 'Send/Lipa kwa simu', minFloat: 200000, deposits: 0, withdrawals: 0, closingFloat: 0, commission: 0 }
                     ];
                     defaults.forEach(n => db.collection("networks").doc(n.code).set(n));
+                } else if (!networks.some(n => n.code === 'DRAWER')) {
+                    db.collection("networks").doc('DRAWER').set({ code: 'DRAWER', name: 'Drawer Physical Cash', minFloat: 100000, deposits: 0, withdrawals: 0, closingFloat: 0, commission: 0 });
                 }
                 renderNetworkInputs();
                 renderOwnerFloats();
@@ -684,7 +688,7 @@
                 <div class="p-3.5 border rounded-xl bg-slate-50 space-y-2">
                     <div class="flex justify-between items-center border-b pb-1.5">
                         <span class="font-bold text-xs text-slate-800">${n.name} (${n.code})</span>
-                        <span class="text-[10px] text-slate-500 font-bold">Min Float: TZS ${Number(n.minFloat || 0).toLocaleString()}</span>
+                        <span class="text-[10px] text-slate-500 font-bold">Min Balance: TZS ${Number(n.minFloat || 0).toLocaleString()}</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                         <div>
@@ -709,7 +713,12 @@
         }
 
         async function updateNetworkVal(id, field, value) {
-            await db.collection("networks").doc(id).update({ [field]: Number(value) || 0 });
+            const numericVal = Number(value) || 0;
+            await db.collection("networks").doc(id).update({ [field]: numericVal });
+            if (id === 'DRAWER' && field === 'closingFloat') {
+                const actualCashInput = document.getElementById('input-actual-cash');
+                if (actualCashInput) actualCashInput.value = numericVal;
+            }
         }
 
         function renderOwnerFloats() {
@@ -724,7 +733,7 @@
                         </span>
                     </div>
                     <div class="flex justify-between items-center pt-1 text-xs">
-                        <span class="text-slate-500 font-medium">Closing Float:</span>
+                        <span class="text-slate-500 font-medium">Closing Balance:</span>
                         <span class="font-black text-slate-900">TZS ${Number(n.closingFloat || 0).toLocaleString()}</span>
                     </div>
                 </div>
@@ -797,7 +806,7 @@
         function openUpdateRequestModal() {
             const sel = document.getElementById('req-target');
             if(sel) {
-                sel.innerHTML = `<option value="CASH">Opening Cash Drawer</option>` + networks.map(n => `<option value="${n.code}">${n.name} Float</option>`).join('');
+                sel.innerHTML = `<option value="CASH">Opening Cash Drawer</option>` + networks.map(n => `<option value="${n.code}">${n.name} Balance</option>`).join('');
             }
             document.getElementById('modal-update-request').classList.remove('hidden');
         }
@@ -833,6 +842,9 @@
                 document.getElementById('input-opening-cash').value = req.amount;
             } else {
                 await db.collection("networks").doc(req.target).update({ closingFloat: req.amount });
+                if (req.target === 'DRAWER') {
+                    document.getElementById('input-actual-cash').value = req.amount;
+                }
             }
 
             await db.collection("updateRequests").doc(reqId).delete();
@@ -875,7 +887,7 @@
         function populateCapitalTargets() {
             const sel = document.getElementById('cap-target');
             if(!sel) return;
-            sel.innerHTML = `<option value="CASH">Physical Drawer Cash</option>` + networks.map(n => `<option value="${n.code}">${n.name} Float</option>`).join('');
+            sel.innerHTML = `<option value="CASH">Physical Drawer Cash</option>` + networks.map(n => `<option value="${n.code}">${n.name} Balance</option>`).join('');
         }
 
         function openEditUserModal(docId) {
@@ -919,6 +931,11 @@
             const openingCash = Number(document.getElementById('input-opening-cash').value) || 0;
             const actualCash = Number(document.getElementById('input-actual-cash').value) || 0;
 
+            const drawerDoc = networks.find(n => n.code === 'DRAWER');
+            if (drawerDoc && drawerDoc.closingFloat !== actualCash) {
+                db.collection("networks").doc("DRAWER").update({ closingFloat: actualCash }).catch(err => console.error(err));
+            }
+
             const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
 
             document.getElementById('lbl-today-capital').innerText = totalPersistentCapital.toLocaleString();
@@ -928,7 +945,11 @@
             const todayWithdrawals = networks.reduce((sum, n) => sum + Number(n.withdrawals || 0), 0);
             const todayCommission = networks.reduce((sum, n) => sum + Number(n.commission || 0), 0);
             const todayExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
-            const totalFloat = networks.reduce((sum, n) => sum + Number(n.closingFloat || 0), 0);
+            
+            const totalFloat = networks.reduce((sum, n) => {
+                if (n.code === 'DRAWER') return sum;
+                return sum + Number(n.closingFloat || 0);
+            }, 0);
 
             const expectedCash = openingCash + todayDeposits - todayWithdrawals - todayExpenses;
             const shiftVariance = actualCash - expectedCash;
@@ -968,9 +989,14 @@
 
             await db.collection("capitalLedger").add({ target, amount: amt, note, createdAt: new Date() });
 
-            if (target === 'CASH') {
+            if (target === 'CASH' || target === 'DRAWER') {
                 const currentOpening = Number(document.getElementById('input-opening-cash').value) || 0;
                 document.getElementById('input-opening-cash').value = currentOpening + amt;
+                const netDoc = networks.find(n => n.code === 'DRAWER');
+                if (netDoc) {
+                    const newFloat = Number(netDoc.closingFloat || 0) + amt;
+                    await db.collection("networks").doc('DRAWER').update({ closingFloat: newFloat });
+                }
             } else {
                 const netDoc = networks.find(n => n.code === target);
                 if (netDoc) {
