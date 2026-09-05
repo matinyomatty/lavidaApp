@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Wakala Pro - Complete Enterprise Admin</title>
+    <title>Wakala Pro - Enterprise Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Firebase SDK (Version 9 Compat) -->
@@ -17,8 +16,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen w-full flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
 
-    <!-- ================= FIREBASE & CALLMEBOT CONFIG ================= -->
     <script>
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBhC-j4zQ_1bktlchzTwbZz7iYOY7iDWow",
             authDomain: "wakalapro-4c16e.firebaseapp.com",
@@ -34,8 +33,35 @@
         }
         const db = firebase.firestore();
 
-        // Recipient for System Zeroing Out report
-        const ADMIN_WIPE_RECIPIENT = { phone: "255712897863", apikey: "8390915" };
+        // CallMeBot Registered WhatsApp Directory
+        const CALLMEBOT_DIRECTORY = {
+            "255712897863": "8390915", // Super Admin
+            "255622537585": "8037254", // Admin / Agent
+            "255676221903": "1530037"  // Admin / Agent
+        };
+
+        const SUPER_ADMIN_PHONE = "255712897863";
+
+        // Reliable WhatsApp Alert Dispatcher
+        async function sendWhatsAppMessage(phoneNumber, message) {
+            const cleanedPhone = phoneNumber ? phoneNumber.replace(/[^0-9]/g, '') : SUPER_ADMIN_PHONE;
+            const apiKey = CALLMEBOT_DIRECTORY[cleanedPhone] || CALLMEBOT_DIRECTORY[SUPER_ADMIN_PHONE];
+            
+            const targetPhone = CALLMEBOT_DIRECTORY[cleanedPhone] ? cleanedPhone : SUPER_ADMIN_PHONE;
+            const encodedText = encodeURIComponent(message);
+            const apiUrl = `https://api.callmebot.com/whatsapp.php?phone=${targetPhone}&text=${encodedText}&apikey=${apiKey}`;
+
+            try {
+                // Primary Fetch
+                await fetch(apiUrl, { mode: 'no-cors' });
+                console.log(`WhatsApp Alert sent to ${targetPhone}`);
+            } catch (err) {
+                console.warn("WhatsApp Direct Fetch Notice, trying fallback image trigger...", err);
+                // Fallback Trigger using Image Ping (Bypasses strict CORS in web views)
+                const img = new Image();
+                img.src = apiUrl;
+            }
+        }
     </script>
 
     <!-- ================= LOGIN MODULE ================= -->
@@ -85,7 +111,7 @@
                     </div>
                 </div>
 
-                <!-- ADMIN ROLE SWITCHER -->
+                <!-- ADMIN ROLE DUAL SWITCHER BUTTONS -->
                 <div id="admin-view-switcher" class="hidden flex bg-slate-800 p-1 rounded-xl border border-slate-700 gap-1 shadow-inner">
                     <button onclick="switchAdminTab('OWNER')" id="tab-btn-owner" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-sm transition">Owner View</button>
                     <button onclick="switchAdminTab('AGENT')" id="tab-btn-agent" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition">Agent View</button>
@@ -113,7 +139,7 @@
                         <h2 class="text-base font-bold text-slate-900">Agent Daily Session & Closing</h2>
                         <div class="flex items-center gap-2 mt-1">
                             <label class="text-xs text-slate-500 font-semibold">Closing Date:</label>
-                            <input type="date" id="session-date-picker" onchange="handleDateChange(this.value)" class="text-xs font-bold text-slate-800 border rounded-lg px-2.5 py-1 bg-slate-50 border-slate-300 focus:outline-none focus:border-emerald-500">
+                            <input type="date" id="session-date-picker" onchange="checkDateLockStatus(this.value)" class="text-xs font-bold text-slate-800 border rounded-lg px-2.5 py-1 bg-slate-50 border-slate-300 focus:outline-none focus:border-emerald-500">
                             <span id="backdate-indicator" class="hidden text-[10px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200">⚠️ Backdating Session</span>
                         </div>
                     </div>
@@ -121,6 +147,11 @@
                         <button onclick="openUpdateRequestModal()" class="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 font-bold rounded-xl text-xs hover:bg-blue-100 transition">📩 Request Balance Adjustment</button>
                         <span id="session-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">SESSION OPEN</span>
                     </div>
+                </div>
+
+                <!-- DOUBLE CLOSING WARNING BANNER -->
+                <div id="lock-warning-banner" class="hidden p-4 bg-rose-50 border border-rose-200 rounded-2xl flex justify-between items-center text-xs text-rose-800 font-bold">
+                    <span>🔒 This day has ALREADY been closed and submitted to cloud. Submissions are locked. Send an Adjustment Request to Owner for changes.</span>
                 </div>
 
                 <div id="agent-form-container" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -197,7 +228,7 @@
                                 <div class="flex justify-between"><span class="text-emerald-700 font-semibold">Total Commission / Fees:</span><span class="font-bold text-emerald-700">TZS <span id="rev-comm">0</span></span></div>
                                 <div class="flex justify-between"><span class="text-rose-700 font-semibold">Total Expenses:</span><span class="font-bold text-rose-700">TZS <span id="rev-exp">0</span></span></div>
                             </div>
-                            <button onclick="submitClosing()" class="w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition">
+                            <button id="btn-submit-close" onclick="submitClosing()" class="w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition">
                                 Sync & Lock Daily Closing to Cloud
                             </button>
                         </div>
@@ -207,7 +238,7 @@
                 <div id="agent-success" class="bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-4 hidden shadow-sm">
                     <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-inner">✓</div>
                     <h3 class="text-xl font-black text-slate-900">Session Synced & Locked</h3>
-                    <p class="text-slate-500 text-xs max-w-md mx-auto">Owner dashboard and audit logs updated in real time across all cloud instances.</p>
+                    <p class="text-slate-500 text-xs max-w-md mx-auto">Owner dashboard and audit logs updated in real time across all cloud instances. WhatsApp summary report dispatched.</p>
                 </div>
             </div>
 
@@ -225,7 +256,7 @@
                         </div>
                     </div>
 
-                    <!-- SUMMARY CARDS -->
+                    <!-- FIXED TOP CARDS -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cumulative Net Profit</p>
@@ -337,7 +368,7 @@
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Reason / Note</label>
-                    <input type="text" id="req-note" placeholder="e.g. Adjustment required" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="req-note" placeholder="e.g. Float adjustment required" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
@@ -364,7 +395,7 @@
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Description / Source</label>
-                    <input type="text" id="cap-note" placeholder="e.g. Baseline Capital Adjustment" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="cap-note" placeholder="e.g. Capital Addition" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
@@ -480,7 +511,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT ENGINE -->
+    <!-- SCRIPT APPLICATION ENGINE -->
     <script>
         let currentUser = null;
         let accounts = [];
@@ -500,8 +531,8 @@
                 accounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 if (accounts.length === 0) {
-                    db.collection("accounts").doc("owner").set({ name: "Business Owner", username: "owner", password: "123", role: "OWNER", phone: "255712897863", branch: "Main Office" });
-                    db.collection("accounts").doc("admin1").set({ name: "Super Admin", username: "admin", password: "123", role: "ADMIN", phone: "255712897863", branch: "HQ" });
+                    db.collection("accounts").doc("superadmin").set({ name: "Super Admin", username: "superadmin", password: "123", role: "OWNER", phone: "255712897863", branch: "HQ" });
+                    db.collection("accounts").doc("admin1").set({ name: "Admin User", username: "admin", password: "123", role: "ADMIN", phone: "255622537585", branch: "Main Branch" });
                 }
 
                 if (currentUser) {
@@ -543,7 +574,7 @@
                 historicalLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderAdminClosureTable();
                 calculateAll();
-                checkAutoMonthlyExport();
+                checkDateLockStatus(document.getElementById('session-date-picker').value);
             });
 
             db.collection("updateRequests").onSnapshot(snapshot => {
@@ -586,6 +617,8 @@
                 document.getElementById('view-owner').classList.remove('hidden');
                 document.getElementById('view-agent').classList.add('hidden');
             }
+
+            checkDateLockStatus(document.getElementById('session-date-picker').value);
         }
 
         function handleLogout() {
@@ -608,6 +641,39 @@
                 document.getElementById('view-owner').classList.add('hidden');
                 document.getElementById('tab-btn-agent').className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-sm transition";
                 document.getElementById('tab-btn-owner').className = "px-3 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition";
+            }
+        }
+
+        function checkDateLockStatus(selectedDate) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const backdateLabel = document.getElementById('backdate-indicator');
+            if(selectedDate !== todayStr) {
+                backdateLabel.classList.remove('hidden');
+            } else {
+                backdateLabel.classList.add('hidden');
+            }
+
+            const existingClosure = historicalLogs.find(l => l.rawDate === selectedDate);
+            const lockBanner = document.getElementById('lock-warning-banner');
+            const submitBtn = document.getElementById('btn-submit-close');
+
+            if (existingClosure) {
+                if (currentUser && currentUser.role === 'AGENT') {
+                    lockBanner.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full py-3.5 bg-slate-300 text-slate-500 font-bold text-base rounded-xl cursor-not-allowed";
+                    submitBtn.innerText = "Session Locked (Day Already Closed)";
+                } else {
+                    lockBanner.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.className = "w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition";
+                    submitBtn.innerText = "Overwrite & Sync Daily Closing (Owner Access)";
+                }
+            } else {
+                lockBanner.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition";
+                submitBtn.innerText = "Sync & Lock Daily Closing to Cloud";
             }
         }
 
@@ -752,8 +818,11 @@
                 createdAt: new Date()
             });
 
+            const alertMsg = `📩 *NEW ADJUSTMENT REQUEST*\nFrom: ${currentUser ? currentUser.name : 'Agent'}\nTarget: ${target}\nAmount: TZS ${amt.toLocaleString()}\nNote: ${note}`;
+            sendWhatsAppMessage(SUPER_ADMIN_PHONE, alertMsg);
+
             closeUpdateRequestModal();
-            alert("Update request submitted to Owner for approval!");
+            alert("Update request submitted to Owner!");
         }
 
         async function approveUpdateRequest(reqId) {
@@ -768,7 +837,7 @@
 
             await db.collection("updateRequests").doc(reqId).delete();
             calculateAll();
-            alert("Update request approved and applied!");
+            alert("Update request approved!");
         }
 
         async function rejectUpdateRequest(reqId) {
@@ -833,7 +902,7 @@
             const newBranch = document.getElementById('edit-user-branch').value.trim();
             const newPhone = document.getElementById('edit-user-phone').value.trim();
 
-            if(!newUsername || !newName) { alert('Username and Name are required!'); return; }
+            if(!newUsername || !newName) { alert('Username and Name required!'); return; }
 
             await db.collection("accounts").doc(docId).update({
                 name: newName,
@@ -865,7 +934,6 @@
             const shiftVariance = actualCash - expectedCash;
             const moneyPosition = actualCash + totalFloat;
 
-            // Balance sheet asset surplus minus unreconciled shift error
             const netProfit = (moneyPosition - totalPersistentCapital) - shiftVariance;
 
             document.getElementById('lbl-expected-cash').innerText = expectedCash.toLocaleString();
@@ -877,16 +945,6 @@
             document.getElementById('rev-volume').innerText = (todayDeposits + todayWithdrawals).toLocaleString();
             document.getElementById('rev-comm').innerText = todayCommission.toLocaleString();
             document.getElementById('rev-exp').innerText = todayExpenses.toLocaleString();
-        }
-
-        function handleDateChange(val) {
-            const todayStr = new Date().toISOString().split('T')[0];
-            const backdateLabel = document.getElementById('backdate-indicator');
-            if(val !== todayStr) {
-                backdateLabel.classList.remove('hidden');
-            } else {
-                backdateLabel.classList.add('hidden');
-            }
         }
 
         function setStep(step) {
@@ -978,28 +1036,25 @@
         }
 
         async function resetAllBalancesAndZeroOut() {
-            const confirmAction = confirm("WARNING: This action will compile a final financial report, trigger WhatsApp dispatch, and permanently wipe all daily summaries, expenses, float numbers, and capital entries. Proceed?");
+            const confirmAction = confirm("WARNING: Wipe all financial data to zero and dispatch report to Super Admin (255712897863)?");
             if (!confirmAction) return;
 
             const now = new Date().toLocaleString();
             const totalVol = historicalLogs.reduce((s, l) => s + Number(l.volume || 0), 0);
-            const totalComm = historicalLogs.reduce((s, l) => s + Number(l.commission || 0), 0);
+            const totalComm = historicalLogs.reduce((s, l) => s + Number(s.commission || 0), 0);
             const totalExp = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
             const totalCap = capitalLedger.reduce((s, c) => s + Number(c.amount || 0), 0);
 
-            let wipeReport = `🚨 WAKALA PRO - SYSTEM ZERO-OUT REPORT\n`;
-            wipeReport += `Timestamp: ${now}\n`;
-            wipeReport += `Initiated By: ${currentUser ? currentUser.name : 'Admin'}\n\n`;
-            wipeReport += `FINAL AUDIT:\n`;
-            wipeReport += `• Capital Baseline: TZS ${totalCap.toLocaleString()}\n`;
+            let wipeReport = `🚨 *WAKALA PRO - SYSTEM ZERO-OUT REPORT*\n`;
+            wipeReport += `📅 Timestamp: ${now}\n`;
+            wipeReport += `👤 Initiated By: ${currentUser ? currentUser.name : 'Admin'}\n\n`;
+            wipeReport += `📋 *PRE-RESET AUDIT*\n`;
+            wipeReport += `• Capital Wiped: TZS ${totalCap.toLocaleString()}\n`;
             wipeReport += `• Volume Wiped: TZS ${totalVol.toLocaleString()}\n`;
             wipeReport += `• Commission Wiped: TZS ${totalComm.toLocaleString()}\n`;
-            wipeReport += `• Expenses Wiped: TZS ${totalExp.toLocaleString()}\n\n`;
-            wipeReport += `Notice: System set to zero.`;
+            wipeReport += `• Expenses Wiped: TZS ${totalExp.toLocaleString()}\n`;
 
-            // Open direct window trigger to bypass browser CORS block
-            const apiUrl = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_WIPE_RECIPIENT.phone}&text=${encodeURIComponent(wipeReport)}&apikey=${ADMIN_WIPE_RECIPIENT.apikey}`;
-            window.open(apiUrl, '_blank');
+            sendWhatsAppMessage(SUPER_ADMIN_PHONE, wipeReport);
 
             const batch = db.batch();
 
@@ -1029,7 +1084,7 @@
             document.getElementById('input-actual-cash').value = 0;
             calculateAll();
 
-            alert("System records wiped to zero.");
+            alert("System zeroed out successfully!");
         }
 
         async function deleteAccount(docId) {
@@ -1037,20 +1092,13 @@
             await db.collection("accounts").doc(docId).delete();
         }
 
-        // UPDATED SUBMIT CLOSING: RESTRICTS AGENT DUPLICATES & FIXES WHATSAPP REPORTING
         async function submitClosing() {
             const selectedDateVal = document.getElementById('session-date-picker').value;
+            const existingClosure = historicalLogs.find(l => l.rawDate === selectedDateVal);
 
-            // Step 1: Duplicate Check
-            const existingDoc = await db.collection("dailySummaries").doc(selectedDateVal).get();
-            if (existingDoc.exists) {
-                if (!currentUser || currentUser.role === 'AGENT') {
-                    alert(`Date ${selectedDateVal} is already locked. As an Agent, you cannot close the day twice. Please submit an Adjustment Request.`);
-                    return;
-                } else {
-                    const allowOverwrite = confirm(`Date ${selectedDateVal} has already been closed. As Admin/Owner, do you want to update this closing record?`);
-                    if (!allowOverwrite) return;
-                }
+            if (existingClosure && currentUser && currentUser.role === 'AGENT') {
+                alert("Day is already closed! Agents cannot close the day twice. Submit an Adjustment Request instead.");
+                return;
             }
 
             const totalDeposits = networks.reduce((sum, n) => sum + Number(n.deposits || 0), 0);
@@ -1060,33 +1108,31 @@
             const variance = Number(document.getElementById('lbl-cash-variance').innerText.replace(/,/g, '')) || 0;
             const totalVolume = totalDeposits + totalWithdrawals;
 
-            // Step 2: Save Closure Record
             await db.collection("dailySummaries").doc(selectedDateVal).set({
                 rawDate: selectedDateVal,
                 volume: totalVolume,
                 commission: totalCommission,
                 expenses: totalExpenses,
                 variance: variance,
-                submittedBy: currentUser ? currentUser.name : 'Agent',
-                updatedAt: new Date()
+                submittedBy: currentUser ? currentUser.name : 'Agent'
             });
 
-            // Step 3: Trigger WhatsApp Dispatch via standard CallMeBot URL opening
-            const phoneToUse = (currentUser && currentUser.phone) ? currentUser.phone.replace(/[^0-9]/g, '') : ADMIN_WIPE_RECIPIENT.phone;
-            const userApiKey = (currentUser && currentUser.apikey) ? currentUser.apikey : "8390915";
-
-            let dailyReport = `📊 WAKALA PRO - DAILY CLOSING REPORT\n`;
-            dailyReport += `Date: ${selectedDateVal}\n`;
-            dailyReport += `Submitted By: ${currentUser ? currentUser.name : 'Agent'}\n\n`;
-            dailyReport += `SUMMARY:\n`;
+            let dailyReport = `📊 *WAKALA PRO - DAILY CLOSING REPORT*\n`;
+            dailyReport += `📅 *Date:* ${selectedDateVal}\n`;
+            dailyReport += `👤 *Submitted By:* ${currentUser ? currentUser.name : 'Agent'} (${currentUser ? currentUser.branch : 'Main'})\n\n`;
+            dailyReport += `📈 *SUMMARY STATISTICS*\n`;
             dailyReport += `• Total Volume: TZS ${totalVolume.toLocaleString()}\n`;
-            dailyReport += `• Commission/Fees: TZS ${totalCommission.toLocaleString()}\n`;
+            dailyReport += `• Gross Commission/Fees: TZS ${totalCommission.toLocaleString()}\n`;
             dailyReport += `• Expenses: TZS ${totalExpenses.toLocaleString()}\n`;
             dailyReport += `• Cash Variance: TZS ${variance.toLocaleString()}\n\n`;
-            dailyReport += `Status: Session Locked.`;
+            dailyReport += `✅ Session locked & synced to cloud database.`;
 
-            const dailyApiUrl = `https://api.callmebot.com/whatsapp.php?phone=${phoneToUse}&text=${encodeURIComponent(dailyReport)}&apikey=${userApiKey}`;
-            window.open(dailyApiUrl, '_blank');
+            // Dispatch WhatsApp summary report to current user and Super Admin
+            const recipientPhone = currentUser && currentUser.phone ? currentUser.phone : SUPER_ADMIN_PHONE;
+            sendWhatsAppMessage(recipientPhone, dailyReport);
+            if (recipientPhone !== SUPER_ADMIN_PHONE) {
+                sendWhatsAppMessage(SUPER_ADMIN_PHONE, dailyReport);
+            }
 
             document.getElementById('agent-form-container').classList.add('hidden');
             document.getElementById('agent-success').classList.remove('hidden');
@@ -1121,20 +1167,6 @@
             });
 
             doc.save(`Wakala_Pro_Monthly_Report_${monthYear.replace(' ', '_')}.pdf`);
-        }
-
-        function checkAutoMonthlyExport() {
-            const now = new Date();
-            const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-            
-            if (tomorrow.getDate() === 1 && now.getHours() >= 23) {
-                const lastExport = localStorage.getItem('last_auto_export');
-                const todayKey = now.toISOString().split('T')[0];
-                if (lastExport !== todayKey) {
-                    generateMonthlyPDF();
-                    localStorage.setItem('last_auto_export', todayKey);
-                }
-            }
         }
     </script>
 </body>
