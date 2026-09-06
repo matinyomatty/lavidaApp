@@ -60,14 +60,14 @@
 
     <!-- LOGIN MODULE -->
     <div id="view-login" class="min-h-screen w-full flex items-center justify-center p-4 bg-slate-900">
-        <div class="bg-white rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full p-6 space-y-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full p-6 space-y-5">
             <div class="text-center space-y-1">
                 <div class="w-12 h-12 bg-emerald-500 text-slate-900 font-black rounded-2xl text-2xl flex items-center justify-center mx-auto shadow-lg">W</div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">WAKALA<span class="text-emerald-500">PRO</span></h1>
                 <p class="text-xs text-slate-500 font-medium">Continuous Balance Ledger System</p>
             </div>
 
-            <form onsubmit="handleLogin(event)" class="space-y-3">
+            <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Username / Login ID</label>
                     <input type="text" id="login-username" required class="w-full p-3 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="owner, admin, or agent username">
@@ -166,7 +166,7 @@
                                 <input type="text" id="exp-note" placeholder="Reason (e.g. Transport, Stationaries)" class="p-3 border border-slate-300 rounded-xl text-sm flex-1 focus:outline-none focus:border-emerald-500">
                                 <button onclick="addExpense()" class="px-5 py-3 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition">Add Expense</button>
                             </div>
-                            <div class="border rounded-xl overflow-x-auto shadow-sm">
+                            <div class="border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
                                 <table class="w-full text-left text-xs min-w-[300px]">
                                     <thead class="bg-slate-100 text-slate-600 border-b">
                                         <tr><th class="p-3">Reason</th><th class="p-3 text-right">Amount</th><th class="p-3 text-center">Action</th></tr>
@@ -180,7 +180,7 @@
                         <!-- Step 3 -->
                         <div id="step-3" class="space-y-4 hidden">
                             <h3 class="font-bold text-slate-900 border-b pb-2 text-sm">3. Final Lock & Review</h3>
-                            <div class="space-y-2 bg-slate-50 p-4 rounded-xl border text-xs">
+                            <div class="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
                                 <div class="flex justify-between"><span>Total Activity Volume:</span><span class="font-bold text-slate-800">TZS <span id="rev-volume">0</span></span></div>
                                 <div class="flex justify-between"><span class="text-emerald-700 font-semibold">Total Commission / Fees:</span><span class="font-bold text-emerald-700">TZS <span id="rev-comm">0</span></span></div>
                                 <div class="flex justify-between"><span class="text-rose-700 font-semibold">Total Expenses:</span><span class="font-bold text-rose-700">TZS <span id="rev-exp">0</span></span></div>
@@ -232,7 +232,7 @@
 
                 <!-- UPDATE REQUESTS SECTION -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center border-b pb-2">
+                    <div class="flex justify-between items-center border-b pb-2 border-slate-100">
                         <div>
                             <h3 class="font-bold text-slate-900 text-sm">Agent Balance Update Requests</h3>
                             <p class="text-[11px] text-slate-500">Pending requests sent by agents for float corrections.</p>
@@ -245,13 +245,13 @@
 
                 <!-- DAILY CLOSURES LOG TABLE -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center border-b pb-2">
+                    <div class="flex justify-between items-center border-b pb-2 border-slate-100">
                         <div>
                             <h3 class="font-bold text-slate-900 text-sm">Daily Shift Submissions Log</h3>
                         </div>
                         <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">Realtime Cloud Sync</span>
                     </div>
-                    <div class="border rounded-xl overflow-x-auto">
+                    <div class="border border-slate-200 rounded-xl overflow-x-auto">
                         <table class="w-full text-left text-xs min-w-[550px]">
                             <thead class="bg-slate-100 text-slate-600 border-b">
                                 <tr>
@@ -271,8 +271,8 @@
 
                 <!-- USER ACCOUNTS TABLE -->
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="font-bold text-slate-900 text-sm border-b pb-2">System Access & Accounts</h3>
-                    <div class="border rounded-xl overflow-x-auto">
+                    <h3 class="font-bold text-slate-900 text-sm border-b pb-2 border-slate-100">System Access & Accounts</h3>
+                    <div class="border border-slate-200 rounded-xl overflow-x-auto">
                         <table class="w-full text-left text-xs min-w-[550px]">
                             <thead class="bg-slate-100 text-slate-600 border-b">
                                 <tr>
@@ -290,7 +290,7 @@
 
                 <!-- NETWORK & CASH BALANCES -->
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Network Float & Cash Drawer Balances</h3>
+                    <h3 class="font-bold text-slate-900 text-sm border-b pb-2 border-slate-100">Network Float & Cash Drawer Balances</h3>
                     <div id="owner-float-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
             </div>
@@ -299,24 +299,24 @@
 
     <!-- MODAL: AGENT UPDATE REQUEST -->
     <div id="modal-update-request" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-4 shadow-2xl">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-md w-full space-y-4 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Request Balance Adjustment</h3>
             <div class="space-y-3">
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Target Provider</label>
-                    <select id="req-target" class="w-full p-3 border rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500"></select>
+                    <select id="req-target" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500"></select>
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Requested New Balance (TZS)</label>
-                    <input type="number" id="req-amount" placeholder="0" class="w-full p-3 border rounded-xl text-sm font-bold text-slate-800 mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="number" id="req-amount" placeholder="0" class="w-full p-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Reason / Note</label>
-                    <input type="text" id="req-note" placeholder="e.g. Reconciling physical drawer cash" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="req-note" placeholder="e.g. Reconciling physical drawer cash" class="w-full p-3 border border-slate-300 rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeUpdateRequestModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeUpdateRequestModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="submitUpdateRequest()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-blue-700">Send Request</button>
             </div>
         </div>
@@ -324,24 +324,24 @@
 
     <!-- MODAL: CAPITAL INJECTION -->
     <div id="modal-capital" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-4 shadow-2xl">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-md w-full space-y-4 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Adjust Capital Baseline</h3>
             <div class="space-y-3">
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Target Channel</label>
-                    <select id="cap-target" class="w-full p-3 border rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500"></select>
+                    <select id="cap-target" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500"></select>
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Amount (TZS)</label>
-                    <input type="number" id="cap-amount" placeholder="0" class="w-full p-3 border rounded-xl text-sm font-bold text-slate-800 mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="number" id="cap-amount" placeholder="0" class="w-full p-3 border border-slate-300 rounded-xl text-sm font-bold text-slate-800 mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase">Description / Source</label>
-                    <input type="text" id="cap-note" placeholder="e.g. Additional Capital Injection" class="w-full p-3 border rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="cap-note" placeholder="e.g. Additional Capital Injection" class="w-full p-3 border border-slate-300 rounded-xl text-xs mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeCapitalModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeCapitalModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="saveCapitalInjection()" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-emerald-700">Save Capital</button>
             </div>
         </div>
@@ -349,15 +349,15 @@
 
     <!-- MODAL: ADD NETWORK PROVIDER -->
     <div id="modal-network" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-4 shadow-2xl">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-md w-full space-y-4 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Add Network / Service Provider</h3>
             <div class="space-y-3">
-                <input type="text" id="net-code" placeholder="Code (e.g. HALOPESA)" class="w-full p-3 border rounded-xl text-xs uppercase font-bold focus:outline-none focus:border-emerald-500">
-                <input type="text" id="net-name" placeholder="Name (e.g. HaloPesa Float)" class="w-full p-3 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
-                <input type="number" id="net-min" placeholder="Minimum Float Threshold (TZS)" class="w-full p-3 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="text" id="net-code" placeholder="Code (e.g. HALOPESA)" class="w-full p-3 border border-slate-300 rounded-xl text-xs uppercase font-bold focus:outline-none focus:border-emerald-500">
+                <input type="text" id="net-name" placeholder="Name (e.g. HaloPesa Float)" class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="number" id="net-min" placeholder="Minimum Float Threshold (TZS)" class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeNetworkModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeNetworkModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="saveNewNetwork()" class="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-xs shadow-md hover:bg-slate-800">Add Provider</button>
             </div>
         </div>
@@ -365,20 +365,20 @@
 
     <!-- MODAL: EDIT USER ACCOUNT -->
     <div id="modal-edit-user" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-3 shadow-2xl">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-md w-full space-y-3 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Edit User Account</h3>
             <input type="hidden" id="edit-user-docid">
             <div>
                 <label class="text-[11px] font-bold text-slate-600 uppercase">Display Name</label>
-                <input type="text" id="edit-user-name" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
+                <input type="text" id="edit-user-name" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
             </div>
             <div>
                 <label class="text-[11px] font-bold text-slate-600 uppercase">Username</label>
-                <input type="text" id="edit-user-username" class="w-full p-2.5 border rounded-xl text-xs font-bold text-blue-700 mt-1 focus:outline-none focus:border-emerald-500">
+                <input type="text" id="edit-user-username" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold text-blue-700 mt-1 focus:outline-none focus:border-emerald-500">
             </div>
             <div>
                 <label class="text-[11px] font-bold text-slate-600 uppercase">Role Access</label>
-                <select id="edit-user-role" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500">
+                <select id="edit-user-role" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 bg-slate-50 focus:outline-none focus:border-emerald-500">
                     <option value="AGENT">AGENT</option>
                     <option value="ADMIN">ADMIN</option>
                     <option value="OWNER">OWNER</option>
@@ -386,14 +386,14 @@
             </div>
             <div>
                 <label class="text-[11px] font-bold text-slate-600 uppercase">Branch Name</label>
-                <input type="text" id="edit-user-branch" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
+                <input type="text" id="edit-user-branch" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
             </div>
             <div>
                 <label class="text-[11px] font-bold text-slate-600 uppercase">Phone Number</label>
-                <input type="tel" id="edit-user-phone" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
+                <input type="tel" id="edit-user-phone" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeEditUserModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeEditUserModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="saveUserEditChanges()" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-emerald-700">Save Changes</button>
             </div>
         </div>
@@ -401,22 +401,22 @@
 
     <!-- MODAL: CREATE NEW ACCOUNT -->
     <div id="modal-agent" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-md w-full space-y-3 shadow-2xl">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-md w-full space-y-3 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Create New System Account</h3>
             <div class="space-y-2.5">
-                <input type="text" id="new-agent-name" placeholder="Full Name" class="w-full p-2.5 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
-                <input type="text" id="new-agent-username" placeholder="Username (Login ID)" class="w-full p-2.5 border rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500">
-                <select id="new-agent-role" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 font-semibold focus:outline-none focus:border-emerald-500">
+                <input type="text" id="new-agent-name" placeholder="Full Name" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="text" id="new-agent-username" placeholder="Username (Login ID)" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500">
+                <select id="new-agent-role" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-slate-50 font-semibold focus:outline-none focus:border-emerald-500">
                     <option value="AGENT">AGENT</option>
                     <option value="ADMIN">ADMIN</option>
                     <option value="OWNER">OWNER</option>
                 </select>
-                <input type="tel" id="new-agent-phone" placeholder="Phone Number (+255...)" class="w-full p-2.5 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
-                <input type="text" id="new-agent-branch" placeholder="Branch Location Name" class="w-full p-2.5 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
-                <input type="password" id="new-agent-password" inputmode="numeric" pattern="[0-9]*" placeholder="Initial Numeric PIN" class="w-full p-2.5 border rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="tel" id="new-agent-phone" placeholder="Phone Number (+255...)" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="text" id="new-agent-branch" placeholder="Branch Location Name" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                <input type="password" id="new-agent-password" inputmode="numeric" pattern="[0-9]*" placeholder="Initial Numeric PIN" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
             </div>
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeAgentModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeAgentModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="saveNewAgentAccount()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-blue-700">Create Account</button>
             </div>
         </div>
@@ -424,19 +424,19 @@
 
     <!-- MODAL: USER PROFILE & LOGOUT -->
     <div id="modal-profile" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white p-6 rounded-2xl border max-w-sm w-full space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center border-b pb-2">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="font-bold text-slate-900 text-base">User Profile</h3>
-                <span id="prof-role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-800 border">ROLE</span>
+                <span id="prof-role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200">ROLE</span>
             </div>
             <div class="space-y-3">
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Display Name</label>
-                    <input type="text" id="prof-name" placeholder="Full Name" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="prof-name" placeholder="Full Name" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase">New Security PIN</label>
-                    <input type="password" id="prof-pin" placeholder="Update PIN" class="w-full p-2.5 border rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
+                    <input type="password" id="prof-pin" placeholder="Update PIN" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-1 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
 
@@ -447,7 +447,7 @@
             </div>
 
             <div class="flex justify-end gap-2 border-t pt-3">
-                <button onclick="closeProfileModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
+                <button onclick="closeProfileModal()" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
                 <button onclick="saveProfileChanges()" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-emerald-700">Save Changes</button>
             </div>
         </div>
@@ -629,27 +629,27 @@
             const container = document.getElementById('network-inputs-container');
             if(!container) return;
             container.innerHTML = networks.map(n => `
-                <div class="p-3.5 border rounded-xl bg-slate-50 space-y-2">
-                    <div class="flex justify-between items-center border-b pb-1.5">
+                <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50 space-y-2">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
                         <span class="font-bold text-xs text-slate-800">${n.name} (${n.code})</span>
                         <span class="text-[10px] text-slate-500 font-bold">Min Target: TZS ${Number(n.minFloat || 0).toLocaleString()}</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                         <div>
                             <label class="text-[10px] text-slate-500 font-bold">Deposits (TZS)</label>
-                            <input type="number" value="${n.deposits || 0}" onchange="updateNetworkVal('${n.id}', 'deposits', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <input type="number" value="${n.deposits || 0}" onchange="updateNetworkVal('${n.id}', 'deposits', this.value)" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 font-bold">Withdrawals (TZS)</label>
-                            <input type="number" value="${n.withdrawals || 0}" onchange="updateNetworkVal('${n.id}', 'withdrawals', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <input type="number" value="${n.withdrawals || 0}" onchange="updateNetworkVal('${n.id}', 'withdrawals', this.value)" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 font-bold">Closing Balance (TZS)</label>
-                            <input type="number" value="${n.closingFloat || 0}" onchange="updateNetworkVal('${n.id}', 'closingFloat', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <input type="number" value="${n.closingFloat || 0}" onchange="updateNetworkVal('${n.id}', 'closingFloat', this.value)" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 font-bold">Commission/Fees (TZS)</label>
-                            <input type="number" value="${n.commission || 0}" onchange="updateNetworkVal('${n.id}', 'commission', this.value)" class="w-full p-2 border rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+                            <input type="number" value="${n.commission || 0}" onchange="updateNetworkVal('${n.id}', 'commission', this.value)" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
                 </div>
@@ -665,7 +665,7 @@
             const grid = document.getElementById('owner-float-grid');
             if(!grid) return;
             grid.innerHTML = networks.map(n => `
-                <div class="p-3.5 border rounded-xl bg-slate-50 space-y-1">
+                <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50 space-y-1">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-xs text-slate-800">${n.name}</span>
                         <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${Number(n.closingFloat || 0) < Number(n.minFloat || 0) ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'}">
@@ -681,11 +681,9 @@
         }
 
         function calculateAll() {
-            // Absolute continuous money position across all physical and network accounts
             const totalMoneyPosition = networks.reduce((sum, n) => sum + Number(n.closingFloat || 0), 0);
             const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
             
-            // Reconciled profit equation
             const netProfit = totalMoneyPosition - totalPersistentCapital;
 
             const todayDeposits = networks.reduce((sum, n) => sum + Number(n.deposits || 0), 0);
@@ -717,7 +715,7 @@
             const tbody = document.getElementById('agents-table-body');
             if(!tbody) return;
             tbody.innerHTML = accounts.map(a => `
-                <tr class="border-b">
+                <tr class="border-b border-slate-100">
                     <td class="p-3 font-bold text-slate-800">${a.name}</td>
                     <td class="p-3 font-bold text-blue-700">${a.username}</td>
                     <td class="p-3 font-bold">${a.role}</td>
@@ -738,7 +736,7 @@
                 return;
             }
             tbody.innerHTML = historicalLogs.map(s => `
-                <tr class="border-b hover:bg-slate-50 transition">
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="p-3 font-bold text-slate-800">${s.rawDate}</td>
                     <td class="p-3 text-slate-600 font-medium">${s.submittedBy || 'Agent'}</td>
                     <td class="p-3 text-right font-semibold">TZS ${Number(s.volume || 0).toLocaleString()}</td>
@@ -756,7 +754,7 @@
                 return;
             }
             container.innerHTML = updateRequests.map(r => `
-                <div class="p-3 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
+                <div class="p-3 border border-slate-200 rounded-xl bg-slate-50 flex justify-between items-center text-xs">
                     <div>
                         <span class="font-bold text-slate-800">${r.requestedBy}</span> requested adjustment for <span class="font-bold text-blue-600">${r.target}</span>: 
                         <span class="font-black text-slate-900">TZS ${Number(r.amount || 0).toLocaleString()}</span>
@@ -811,7 +809,7 @@
             const tbody = document.getElementById('expense-table-body');
             if(!tbody) return;
             tbody.innerHTML = expenses.map(e => `
-                <tr class="border-b">
+                <tr class="border-b border-slate-100">
                     <td class="p-3 font-medium text-slate-700">${e.note}</td>
                     <td class="p-3 text-right font-bold text-rose-600">TZS ${Number(e.amount || 0).toLocaleString()}</td>
                     <td class="p-3 text-center">
@@ -891,6 +889,36 @@
 
             await db.collection("accounts").add({ name, username: u, role, phone, branch, password: p });
             closeAgentModal();
+        }
+
+        function openEditUserModal(docId) {
+            const targetAcc = accounts.find(a => a.id === docId);
+            if (!targetAcc) return;
+            document.getElementById('edit-user-docid').value = targetAcc.id;
+            document.getElementById('edit-user-name').value = targetAcc.name || '';
+            document.getElementById('edit-user-username').value = targetAcc.username || '';
+            document.getElementById('edit-user-role').value = targetAcc.role || 'AGENT';
+            document.getElementById('edit-user-branch').value = targetAcc.branch || '';
+            document.getElementById('edit-user-phone').value = targetAcc.phone || '';
+            document.getElementById('modal-edit-user').classList.remove('hidden');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('modal-edit-user').classList.add('hidden');
+        }
+
+        async function saveUserEditChanges() {
+            const docId = document.getElementById('edit-user-docid').value;
+            if (!docId) return;
+
+            const name = document.getElementById('edit-user-name').value.trim();
+            const username = document.getElementById('edit-user-username').value.trim();
+            const role = document.getElementById('edit-user-role').value;
+            const branch = document.getElementById('edit-user-branch').value.trim();
+            const phone = document.getElementById('edit-user-phone').value.trim();
+
+            await db.collection("accounts").doc(docId).update({ name, username, role, branch, phone });
+            closeEditUserModal();
         }
 
         function openProfileModal() {
