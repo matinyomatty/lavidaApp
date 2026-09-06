@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -651,7 +650,7 @@
         function checkDateLockStatus(selectedDate) {
             const todayStr = new Date().toISOString().split('T')[0];
             const backdateLabel = document.getElementById('backdate-indicator');
-            if(selectedDate !== todayStr) {
+            if (selectedDate !== todayStr) {
                 backdateLabel.classList.remove('hidden');
             } else {
                 backdateLabel.classList.add('hidden');
@@ -661,7 +660,19 @@
             const lockBanner = document.getElementById('lock-warning-banner');
             const submitBtn = document.getElementById('btn-submit-close');
 
+            // Reset step view and hide completion card whenever the date is changed
+            document.getElementById('agent-success').classList.add('hidden');
+            document.getElementById('agent-form-container').classList.remove('hidden');
+            setStep(1);
+
             if (existingClosure) {
+                // Update session indicator badge
+                const sessionBadge = document.getElementById('session-badge');
+                if (sessionBadge) {
+                    sessionBadge.innerText = "SESSION LOCKED";
+                    sessionBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200";
+                }
+
                 if (currentUser && currentUser.role === 'AGENT') {
                     lockBanner.classList.remove('hidden');
                     submitBtn.disabled = true;
@@ -674,6 +685,13 @@
                     submitBtn.innerText = "Overwrite & Sync Daily Closing (Owner Access)";
                 }
             } else {
+                // Update session indicator badge
+                const sessionBadge = document.getElementById('session-badge');
+                if (sessionBadge) {
+                    sessionBadge.innerText = "SESSION OPEN";
+                    sessionBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200";
+                }
+
                 lockBanner.classList.add('hidden');
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full py-3.5 bg-emerald-600 text-white font-black text-base rounded-xl hover:bg-emerald-700 shadow-lg transition";
