@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Wakala Pro - Continuous Ledger Edition</title>
+    <title>Wakala Pro - Accounting Standard Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Firebase SDK (Version 9 Compat) -->
@@ -64,7 +64,7 @@
             <div class="text-center space-y-1">
                 <div class="w-12 h-12 bg-emerald-500 text-slate-900 font-black rounded-2xl text-2xl flex items-center justify-center mx-auto shadow-lg">W</div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">WAKALA<span class="text-emerald-500">PRO</span></h1>
-                <p class="text-xs text-slate-500 font-medium">Continuous Balance Ledger System</p>
+                <p class="text-xs text-slate-500 font-medium">Accounting Standard Ledger System</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -98,7 +98,7 @@
                     <div>
                         <h1 class="text-sm font-bold tracking-tight leading-none">WAKALA<span class="text-emerald-400">PRO</span></h1>
                         <p class="text-[9px] text-emerald-400 flex items-center gap-1 font-semibold mt-0.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Accounting
                         </p>
                     </div>
                 </div>
@@ -109,6 +109,10 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
+                    <button onclick="manualRefreshData()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
+                        🔄 Update Data
+                    </button>
+                    
                     <div class="text-right hidden sm:block">
                         <p class="text-xs font-bold text-white leading-tight" id="user-display-name">User Name</p>
                         <p class="text-[9px] text-slate-400" id="user-display-branch">Role: OWNER</p>
@@ -134,13 +138,13 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                        <button onclick="openUpdateRequestModal()" class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold rounded-xl text-[11px] hover:bg-blue-100 transition">📩 Request Adjustment</button>
+                        <button onclick="openUpdateRequestModal()" class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold rounded-xl text-[11px] hover:bg-blue-100 transition">⚡ Direct Balance Adjustment</button>
                         <span id="session-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">SESSION OPEN</span>
                     </div>
                 </div>
 
                 <div id="lock-warning-banner" class="hidden p-3 bg-rose-50 border border-rose-200 rounded-2xl text-[11px] text-rose-800 font-bold">
-                    🔒 Day already closed and submitted. Request an adjustment from the Owner for updates.
+                    🔒 Day already closed. Direct adjustments or shift resyncs are active.
                 </div>
 
                 <div id="agent-form-container" class="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -228,22 +232,22 @@
                             <p class="text-sm sm:text-base font-black text-blue-600 mt-0.5">TZS <span id="owner-capital">0</span></p>
                         </div>
                         <div id="position-change-card" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Position Variance (+/-)</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Variance vs Yesterday</p>
                             <p class="text-sm sm:text-base font-black mt-0.5" id="owner-position-change">TZS 0</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- UPDATE REQUESTS SECTION -->
+                <!-- DIRECT ADJUSTMENT LOG SECTION -->
                 <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                     <div class="flex justify-between items-center border-b pb-1.5 border-slate-100">
                         <div>
-                            <h3 class="font-bold text-slate-900 text-xs">Agent Balance Update Requests</h3>
-                            <p class="text-[10px] text-slate-500">Pending requests sent by agents for float corrections.</p>
+                            <h3 class="font-bold text-slate-900 text-xs">Agent Direct Adjustments Log</h3>
+                            <p class="text-[10px] text-slate-500">Direct float adjustments executed by agents.</p>
                         </div>
                     </div>
                     <div id="update-requests-list" class="space-y-1.5">
-                        <p class="text-xs text-slate-400 italic">No pending update requests.</p>
+                        <p class="text-xs text-slate-400 italic">No recent adjustments logged.</p>
                     </div>
                 </div>
 
@@ -262,10 +266,11 @@
                                     <th class="p-2.5 text-right">Volume</th>
                                     <th class="p-2.5 text-right">Commission</th>
                                     <th class="p-2.5 text-right">Expenses</th>
+                                    <th class="p-2.5 text-right">Money Position</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-closure-table-body">
-                                <tr><td colspan="5" class="p-3 text-center text-slate-400">Loading closures...</td></tr>
+                                <tr><td colspan="6" class="p-3 text-center text-slate-400">Loading closures...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -299,27 +304,28 @@
         </main>
     </div>
 
-    <!-- MODAL: AGENT UPDATE REQUEST -->
+    <!-- MODAL: AGENT DIRECT UPDATE ADJUSTMENT -->
     <div id="modal-update-request" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 max-w-md w-full space-y-3 shadow-2xl">
-            <h3 class="font-bold text-slate-900 text-sm">Request Balance Adjustment</h3>
+            <h3 class="font-bold text-slate-900 text-sm">Direct Balance Adjustment</h3>
+            <p class="text-[10px] text-slate-500">Agent can adjust balances directly without approval.</p>
             <div class="space-y-2.5">
                 <div>
                     <label class="text-[10px] font-bold text-slate-600 uppercase">Target Provider</label>
                     <select id="req-target" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-semibold mt-0.5 bg-slate-50 focus:outline-none focus:border-emerald-500"></select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-600 uppercase">Requested New Balance (TZS)</label>
+                    <label class="text-[10px] font-bold text-slate-600 uppercase">Adjusted New Balance (TZS)</label>
                     <input type="number" id="req-amount" placeholder="0" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 mt-0.5 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-600 uppercase">Reason / Note</label>
-                    <input type="text" id="req-note" placeholder="e.g. Reconciling physical drawer cash" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs mt-0.5 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="req-note" placeholder="e.g. Cash drawer reconciliation correction" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs mt-0.5 focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
             <div class="flex justify-end gap-2 border-t pt-2.5">
                 <button onclick="closeUpdateRequestModal()" class="px-3.5 py-1.5 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50">Cancel</button>
-                <button onclick="submitUpdateRequest()" class="px-3.5 py-1.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-blue-700">Send Request</button>
+                <button onclick="submitUpdateRequest()" class="px-3.5 py-1.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md hover:bg-blue-700">Apply Adjustment Immediately</button>
             </div>
         </div>
     </div>
@@ -470,6 +476,39 @@
             document.getElementById('session-date-picker').value = todayStr;
         });
 
+        function manualRefreshData() {
+            db.collection("accounts").get().then(snapshot => {
+                accounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUsersTable();
+            });
+            db.collection("networks").get().then(snapshot => {
+                networks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderNetworkInputs();
+                renderOwnerFloats();
+                populateDropdowns();
+                calculateAll();
+            });
+            db.collection("expenses").get().then(snapshot => {
+                expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderExpenses();
+                calculateAll();
+            });
+            db.collection("capitalLedger").get().then(snapshot => {
+                capitalLedger = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                calculateAll();
+            });
+            db.collection("dailySummaries").orderBy("rawDate", "asc").get().then(snapshot => {
+                historicalLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAdminClosureTable();
+                calculateAll();
+                checkDateLockStatus(document.getElementById('session-date-picker').value);
+            });
+            db.collection("updateRequests").get().then(snapshot => {
+                updateRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUpdateRequests();
+            });
+        }
+
         function attachRealtimeListeners() {
             db.collection("accounts").onSnapshot(snapshot => {
                 accounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -513,7 +552,7 @@
                 calculateAll();
             });
 
-            db.collection("dailySummaries").orderBy("rawDate", "desc").onSnapshot(snapshot => {
+            db.collection("dailySummaries").orderBy("rawDate", "asc").onSnapshot(snapshot => {
                 historicalLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderAdminClosureTable();
                 calculateAll();
@@ -602,17 +641,10 @@
                     sessionBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200";
                 }
 
-                if (currentUser && currentUser.role === 'AGENT') {
-                    lockBanner.classList.remove('hidden');
-                    submitBtn.disabled = true;
-                    submitBtn.className = "w-full py-3 bg-slate-300 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed";
-                    submitBtn.innerText = "Session Locked (Already Submitted)";
-                } else {
-                    lockBanner.classList.add('hidden');
-                    submitBtn.disabled = false;
-                    submitBtn.className = "w-full py-3 bg-emerald-600 text-white font-black text-sm rounded-xl hover:bg-emerald-700 shadow-lg transition";
-                    submitBtn.innerText = "Overwrite & Sync Daily Closing (Owner Access)";
-                }
+                lockBanner.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full py-3 bg-emerald-600 text-white font-black text-sm rounded-xl hover:bg-emerald-700 shadow-lg transition";
+                submitBtn.innerText = "Update & Resync Daily Shift Entry";
             } else {
                 const sessionBadge = document.getElementById('session-badge');
                 if (sessionBadge) {
@@ -683,28 +715,35 @@
         }
 
         function calculateAll() {
-            const totalMoneyPosition = networks.reduce((sum, n) => sum + Number(n.closingFloat || 0), 0);
             const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
             
-            const netProfit = totalMoneyPosition - totalPersistentCapital;
-
-            const todayDeposits = networks.reduce((sum, n) => sum + Number(n.deposits || 0), 0);
-            const todayWithdrawals = networks.reduce((sum, n) => sum + Number(n.withdrawals || 0), 0);
+            // ACCORDING TO WAKALA ACCOUNTING STANDARDS & PDF SPECIFICATIONS:
+            // Running Money Position = Initial Capital + Total Historical Commissions - Total Historical Expenses
+            const totalHistoricalCommissions = historicalLogs.reduce((sum, l) => sum + Number(l.commission || 0), 0);
+            const totalHistoricalExpenses = historicalLogs.reduce((sum, l) => sum + Number(l.expenses || 0), 0);
             const todayCommission = networks.reduce((sum, n) => sum + Number(n.commission || 0), 0);
             const todayExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
+            // True Running Ledger Money Position matching PDF exactly:
+            const runningMoneyPosition = totalPersistentCapital + totalHistoricalCommissions - totalHistoricalExpenses + todayCommission - todayExpenses;
+            const netProfit = (totalHistoricalCommissions - totalHistoricalExpenses) + (todayCommission - todayExpenses);
+
+            const todayDeposits = networks.reduce((sum, n) => sum + Number(n.deposits || 0), 0);
+            const todayWithdrawals = networks.reduce((sum, n) => sum + Number(n.withdrawals || 0), 0);
+
             document.getElementById('owner-capital').innerText = totalPersistentCapital.toLocaleString();
-            document.getElementById('owner-position').innerText = totalMoneyPosition.toLocaleString();
+            document.getElementById('owner-position').innerText = runningMoneyPosition.toLocaleString();
             document.getElementById('owner-profit').innerText = netProfit.toLocaleString();
 
-            const positionVariance = totalMoneyPosition - totalPersistentCapital;
+            // Daily Variance = Net Daily Earnings (Today Commission - Today Expenses)
+            const todayNetVariance = todayCommission - todayExpenses;
             const varianceElem = document.getElementById('owner-position-change');
             if (varianceElem) {
-                const formattedVar = Math.abs(positionVariance).toLocaleString();
-                if (positionVariance > 0) {
+                const formattedVar = Math.abs(todayNetVariance).toLocaleString();
+                if (todayNetVariance > 0) {
                     varianceElem.innerText = `+TZS ${formattedVar}`;
                     varianceElem.className = "text-sm sm:text-base font-black mt-0.5 text-emerald-600";
-                } else if (positionVariance < 0) {
+                } else if (todayNetVariance < 0) {
                     varianceElem.innerText = `-TZS ${formattedVar}`;
                     varianceElem.className = "text-sm sm:text-base font-black mt-0.5 text-rose-600";
                 } else {
@@ -750,38 +789,45 @@
             const tbody = document.getElementById('admin-closure-table-body');
             if(!tbody) return;
             if (historicalLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">No daily closures submitted yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-400">No daily closures submitted yet.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = historicalLogs.map(s => `
+
+            const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+            let runningTotal = totalPersistentCapital;
+
+            tbody.innerHTML = historicalLogs.map(s => {
+                const dayComm = Number(s.commission || 0);
+                const dayExp = Number(s.expenses || 0);
+                runningTotal += (dayComm - dayExp);
+
+                return `
                 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                     <td class="p-2.5 font-bold text-slate-800">${s.rawDate}</td>
                     <td class="p-2.5 text-slate-600 font-medium">${s.submittedBy || 'Agent'}</td>
                     <td class="p-2.5 text-right font-semibold">TZS ${Number(s.volume || 0).toLocaleString()}</td>
-                    <td class="p-2.5 text-right font-bold text-emerald-600">TZS ${Number(s.commission || 0).toLocaleString()}</td>
-                    <td class="p-2.5 text-right font-bold text-rose-600">TZS ${Number(s.expenses || 0).toLocaleString()}</td>
+                    <td class="p-2.5 text-right font-bold text-emerald-600">TZS ${dayComm.toLocaleString()}</td>
+                    <td class="p-2.5 text-right font-bold text-rose-600">TZS ${dayExp.toLocaleString()}</td>
+                    <td class="p-2.5 text-right font-black text-slate-900">TZS ${runningTotal.toLocaleString()}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function renderUpdateRequests() {
             const container = document.getElementById('update-requests-list');
             if(!container) return;
             if(updateRequests.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic">No pending update requests.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No recent adjustments logged.</p>`;
                 return;
             }
             container.innerHTML = updateRequests.map(r => `
                 <div class="p-2.5 border border-slate-200 rounded-xl bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
                     <div>
-                        <span class="font-bold text-slate-800">${r.requestedBy}</span> requested adjustment for <span class="font-bold text-blue-600">${r.target}</span>: 
+                        <span class="font-bold text-slate-800">${r.requestedBy}</span> adjusted <span class="font-bold text-blue-600">${r.target}</span> to 
                         <span class="font-black text-slate-900">TZS ${Number(r.amount || 0).toLocaleString()}</span>
-                        <p class="text-[10px] text-slate-500 mt-0.5">Note: ${r.note || 'No reason provided'}</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Reason: ${r.note || 'No note provided'}</p>
                     </div>
-                    <div class="flex gap-2 w-full sm:w-auto justify-end">
-                        <button onclick="approveUpdateRequest('${r.id}')" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px] hover:bg-emerald-700">Approve</button>
-                        <button onclick="rejectUpdateRequest('${r.id}')" class="px-2.5 py-1 bg-rose-600 text-white font-bold rounded-lg text-[10px] hover:bg-rose-700">Reject</button>
-                    </div>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-lg text-[10px] font-bold">Applied</span>
                 </div>
             `).join('');
         }
@@ -793,34 +839,28 @@
             const target = document.getElementById('req-target').value;
             const amt = Number(document.getElementById('req-amount').value);
             const note = document.getElementById('req-note').value.trim();
-            if(!amt) return;
+            if(isNaN(amt)) return;
+
+            const netDoc = networks.find(n => n.code === target);
+            if (netDoc) {
+                await db.collection("networks").doc(netDoc.id).update({ closingFloat: amt });
+            }
 
             await db.collection("updateRequests").add({
                 target: target,
                 amount: amt,
                 note: note,
                 requestedBy: currentUser ? currentUser.name : 'Agent',
+                status: 'Applied Direct',
                 createdAt: new Date()
             });
 
-            const alertMsg = `📩 *NEW ADJUSTMENT REQUEST*\nFrom: ${currentUser ? currentUser.name : 'Agent'}\nTarget: ${target}\nAmount: TZS ${amt.toLocaleString()}\nNote: ${note}`;
+            const alertMsg = `⚡ *DIRECT BALANCE ADJUSTMENT*\nBy: ${currentUser ? currentUser.name : 'Agent'}\nTarget: ${target}\nNew Balance: TZS ${amt.toLocaleString()}\nNote: ${note}`;
             sendWhatsAppMessage(SUPER_ADMIN_PHONE, alertMsg);
 
             closeUpdateRequestModal();
-            alert("Update request submitted to Owner!");
-        }
-
-        async function approveUpdateRequest(reqId) {
-            const req = updateRequests.find(r => r.id === reqId);
-            if(!req) return;
-            await db.collection("networks").doc(req.target).update({ closingFloat: req.amount });
-            await db.collection("updateRequests").doc(reqId).delete();
             calculateAll();
-            alert("Update request approved!");
-        }
-
-        async function rejectUpdateRequest(reqId) {
-            await db.collection("updateRequests").doc(reqId).delete();
+            alert("Balance adjusted directly and synced!");
         }
 
         function renderExpenses() {
@@ -983,12 +1023,6 @@
 
         async function submitClosing() {
             const selectedDateVal = document.getElementById('session-date-picker').value;
-            const existingClosure = historicalLogs.find(l => l.rawDate === selectedDateVal);
-
-            if (existingClosure && currentUser && currentUser.role === 'AGENT') {
-                alert("Day is already closed! Request an adjustment from the Owner.");
-                return;
-            }
 
             const totalDeposits = networks.reduce((sum, n) => sum + Number(n.deposits || 0), 0);
             const totalWithdrawals = networks.reduce((sum, n) => sum + Number(n.withdrawals || 0), 0);
@@ -996,11 +1030,18 @@
             const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
             const totalVolume = totalDeposits + totalWithdrawals;
 
+            const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+            const historicalCommExceptToday = historicalLogs.filter(l => l.rawDate !== selectedDateVal).reduce((sum, l) => sum + Number(l.commission || 0), 0);
+            const historicalExpExceptToday = historicalLogs.filter(l => l.rawDate !== selectedDateVal).reduce((sum, l) => sum + Number(l.expenses || 0), 0);
+
+            const computedMoneyPosition = totalPersistentCapital + historicalCommExceptToday + totalCommission - (historicalExpExceptToday + totalExpenses);
+
             await db.collection("dailySummaries").doc(selectedDateVal).set({
                 rawDate: selectedDateVal,
                 volume: totalVolume,
                 commission: totalCommission,
                 expenses: totalExpenses,
+                moneyPosition: computedMoneyPosition,
                 submittedBy: currentUser ? currentUser.name : 'Agent'
             });
 
@@ -1011,6 +1052,7 @@
             dailyReport += `• Total Volume: TZS ${totalVolume.toLocaleString()}\n`;
             dailyReport += `• Commission/Fees: TZS ${totalCommission.toLocaleString()}\n`;
             dailyReport += `• Expenses: TZS ${totalExpenses.toLocaleString()}\n`;
+            dailyReport += `• Money Position: TZS ${computedMoneyPosition.toLocaleString()}\n`;
 
             const recipientPhone = currentUser && currentUser.phone ? currentUser.phone : SUPER_ADMIN_PHONE;
             sendWhatsAppMessage(recipientPhone, dailyReport);
@@ -1031,12 +1073,14 @@
             doc.text(`Period: ${monthYear} | Exported: ${now.toLocaleDateString()}`, 14, 27);
 
             const sortedLogs = [...historicalLogs].sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
-            let runningMoneyPosition = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+            const totalPersistentCapital = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+            
+            let runningTotal = totalPersistentCapital;
 
             const tableRows = sortedLogs.map(s => {
                 const dayComm = Number(s.commission || 0);
                 const dayExp = Number(s.expenses || 0);
-                runningMoneyPosition += (dayComm - dayExp);
+                runningTotal += (dayComm - dayExp);
 
                 return [
                     s.rawDate,
@@ -1044,7 +1088,7 @@
                     `TZS ${Number(s.volume || 0).toLocaleString()}`,
                     `TZS ${dayComm.toLocaleString()}`,
                     `TZS ${dayExp.toLocaleString()}`,
-                    `TZS ${runningMoneyPosition.toLocaleString()}`
+                    `TZS ${runningTotal.toLocaleString()}`
                 ];
             });
 
