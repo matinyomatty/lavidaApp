@@ -216,8 +216,8 @@
                     </div>
 
                     <!-- RECONCILED TOP CARDS GRID FIX FOR MOBILE -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Cumulative Net Profit</p>
                             <p class="text-sm sm:text-base font-black text-emerald-600 mt-0.5">TZS <span id="owner-profit">0</span></p>
                         </div>
@@ -228,6 +228,11 @@
                         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Capital Baseline</p>
                             <p class="text-sm sm:text-base font-black text-blue-600 mt-0.5">TZS <span id="owner-capital">0</span></p>
+                        </div>
+                        <!-- NEW FEATURE: HYPER-FIX MONEY POSITION VARIANCE DASHBOARD CARD -->
+                        <div id="position-change-card" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Position Variance (+/-)</p>
+                            <p class="text-sm sm:text-base font-black mt-0.5" id="owner-position-change">TZS 0</p>
                         </div>
                     </div>
                 </div>
@@ -695,6 +700,23 @@
             document.getElementById('owner-position').innerText = totalMoneyPosition.toLocaleString();
             document.getElementById('owner-profit').innerText = netProfit.toLocaleString();
 
+            // MONEY POSITION VARIANCE CALCULATION (+/-)
+            const positionVariance = totalMoneyPosition - totalPersistentCapital;
+            const varianceElem = document.getElementById('owner-position-change');
+            if (varianceElem) {
+                const formattedVar = Math.abs(positionVariance).toLocaleString();
+                if (positionVariance > 0) {
+                    varianceElem.innerText = `+TZS ${formattedVar}`;
+                    varianceElem.className = "text-sm sm:text-base font-black mt-0.5 text-emerald-600";
+                } else if (positionVariance < 0) {
+                    varianceElem.innerText = `-TZS ${formattedVar}`;
+                    varianceElem.className = "text-sm sm:text-base font-black mt-0.5 text-rose-600";
+                } else {
+                    varianceElem.innerText = `TZS 0`;
+                    varianceElem.className = "text-sm sm:text-base font-black mt-0.5 text-slate-800";
+                }
+            }
+
             document.getElementById('rev-volume').innerText = (todayDeposits + todayWithdrawals).toLocaleString();
             document.getElementById('rev-comm').innerText = todayCommission.toLocaleString();
             document.getElementById('rev-exp').innerText = todayExpenses.toLocaleString();
@@ -1001,6 +1023,7 @@
             document.getElementById('agent-success').classList.remove('hidden');
         }
 
+        // GENERATE MONTHLY PDF WITH DAILY MONEY POSITION COLUMN
         function generateMonthlyPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -1008,21 +1031,32 @@
             const monthYear = now.toLocaleString('default', { month: 'long', year: 'numeric' });
 
             doc.setFontSize(16);
-            doc.text(`Wakala Pro - Financial Audit`, 14, 20);
+            doc.text(`Wakala Pro - Financial Audit & Ledger`, 14, 20);
             doc.setFontSize(10);
             doc.text(`Period: ${monthYear} | Exported: ${now.toLocaleDateString()}`, 14, 27);
 
-            const tableRows = historicalLogs.map(s => [
-                s.rawDate,
-                s.submittedBy || 'Agent',
-                `TZS ${Number(s.volume || 0).toLocaleString()}`,
-                `TZS ${Number(s.commission || 0).toLocaleString()}`,
-                `TZS ${Number(s.expenses || 0).toLocaleString()}`
-            ]);
+            // Chronological sort to calculate accurate running daily money position
+            const sortedLogs = [...historicalLogs].sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
+            let runningMoneyPosition = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+
+            const tableRows = sortedLogs.map(s => {
+                const dayComm = Number(s.commission || 0);
+                const dayExp = Number(s.expenses || 0);
+                runningMoneyPosition += (dayComm - dayExp);
+
+                return [
+                    s.rawDate,
+                    s.submittedBy || 'Agent',
+                    `TZS ${Number(s.volume || 0).toLocaleString()}`,
+                    `TZS ${dayComm.toLocaleString()}`,
+                    `TZS ${dayExp.toLocaleString()}`,
+                    `TZS ${runningMoneyPosition.toLocaleString()}`
+                ];
+            });
 
             doc.autoTable({
                 startY: 35,
-                head: [['Closure Date', 'Submitted By', 'Volume', 'Commission / Fees', 'Expenses']],
+                head: [['Closure Date', 'Submitted By', 'Volume', 'Commission / Fees', 'Expenses', 'Money Position']],
                 body: tableRows,
                 theme: 'striped',
                 headStyles: { fillColor: [16, 185, 129] }
