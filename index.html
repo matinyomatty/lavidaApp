@@ -205,7 +205,6 @@
                     <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
                         <h2 class="text-sm font-bold text-slate-900">Owner Dashboard</h2>
                         
-                        <!-- ACTION BUTTONS GRID FIX FOR MOBILE -->
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                             <button onclick="generateMonthlyPDF()" class="p-2 bg-rose-600 text-white font-bold rounded-xl text-[11px] hover:bg-rose-700 shadow-sm transition flex items-center justify-center gap-1">📄 Monthly PDF</button>
                             <button onclick="resetAllBalancesAndZeroOut()" class="p-2 bg-amber-600 text-white font-bold rounded-xl text-[11px] hover:bg-amber-700 shadow-sm transition flex items-center justify-center gap-1">🔄 Zero Out Data</button>
@@ -215,7 +214,6 @@
                         </div>
                     </div>
 
-                    <!-- RECONCILED TOP CARDS GRID FIX FOR MOBILE -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Cumulative Net Profit</p>
@@ -229,7 +227,6 @@
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Capital Baseline</p>
                             <p class="text-sm sm:text-base font-black text-blue-600 mt-0.5">TZS <span id="owner-capital">0</span></p>
                         </div>
-                        <!-- NEW FEATURE: HYPER-FIX MONEY POSITION VARIANCE DASHBOARD CARD -->
                         <div id="position-change-card" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Position Variance (+/-)</p>
                             <p class="text-sm sm:text-base font-black mt-0.5" id="owner-position-change">TZS 0</p>
@@ -700,7 +697,6 @@
             document.getElementById('owner-position').innerText = totalMoneyPosition.toLocaleString();
             document.getElementById('owner-profit').innerText = netProfit.toLocaleString();
 
-            // MONEY POSITION VARIANCE CALCULATION (+/-)
             const positionVariance = totalMoneyPosition - totalPersistentCapital;
             const varianceElem = document.getElementById('owner-position-change');
             if (varianceElem) {
@@ -1023,7 +1019,6 @@
             document.getElementById('agent-success').classList.remove('hidden');
         }
 
-        // GENERATE MONTHLY PDF WITH DAILY MONEY POSITION COLUMN
         function generateMonthlyPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -1035,7 +1030,6 @@
             doc.setFontSize(10);
             doc.text(`Period: ${monthYear} | Exported: ${now.toLocaleDateString()}`, 14, 27);
 
-            // Chronological sort to calculate accurate running daily money position
             const sortedLogs = [...historicalLogs].sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
             let runningMoneyPosition = capitalLedger.reduce((sum, c) => sum + Number(c.amount || 0), 0);
 
@@ -1062,7 +1056,7 @@
                 headStyles: { fillColor: [16, 185, 129] }
             });
 
-            doc.save(`Wakala_Pro_Report_${monthYear.replace(' ', '_')}.pdf`);
+            doc.save(`Wakala_Pro_Monthly_Ledger_${monthYear.replace(/\s+/g, '_')}.pdf`);
         }
     </script>
 </body>
